@@ -298,14 +298,17 @@ class TestReleases(unittest.TestCase):
             print('::endgroup::')
             raise
         subprocess.check_call(['meson', 'compile', '-C', builddir, '-v'])
-        try:
-            subprocess.check_call(['meson', 'test', '-C', builddir, '--suite', name, '--print-errorlogs'])
-        except subprocess.CalledProcessError:
-            log_file = Path(builddir, 'meson-logs', 'testlog.txt')
-            print('::group::==== testlog.txt ====')
-            print(log_file.read_text(encoding='utf-8'))
-            print('::endgroup::')
-            raise
+        if not ci.get('skip_tests', False):
+            test_options = ci.get('test_options', [])
+            try:
+                subprocess.check_call(['meson', 'test', '-C', builddir, '--suite', name,
+                                       '--print-errorlogs'] + test_options)
+            except subprocess.CalledProcessError:
+                log_file = Path(builddir, 'meson-logs', 'testlog.txt')
+                print('::group::==== testlog.txt ====')
+                print(log_file.read_text(encoding='utf-8'))
+                print('::endgroup::')
+                raise
         subprocess.check_call(['meson', 'install', '-C', builddir, '--destdir', 'pkg'])
 
     def is_permitted_file(self, subproject: str, filename: str):
