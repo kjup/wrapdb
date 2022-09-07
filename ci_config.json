@@ -41,6 +41,10 @@
     "unit-system",
     "zstd"
   ],
+  "cairo": {
+    "skip_tests": true,
+    "fatal_warnings": false
+  },
   "cexception": {
     "build_options": [
       "cexception:werror=false"
